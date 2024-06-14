@@ -1,0 +1,43 @@
+#task 2
+
+import requests
+
+def fetch_planet_data():
+    url = "https://api.le-systeme-solaire.net/rest/bodies/"
+    response = requests.get(url)
+    
+    # Check if the request was successful
+    if response.status_code == 200:
+        planets = response.json()['bodies']
+        
+        # Initialize variables for heaviest planet
+        heaviest_planet_name = ""
+        heaviest_planet_mass = 0
+        
+        # Process each planet info
+        for planet in planets:
+            if planet['isPlanet']:
+                name = planet['englishName']
+                mass = planet.get('mass', {}).get('massValue', 0)
+                
+                # Handling variations in orbit period data
+                orbit_period_data = planet.get('semimajorAxis', {}).get('value', None)
+                if isinstance(orbit_period_data, (int, float)):
+                    orbit_period = orbit_period_data / 365.25
+                else:
+                    orbit_period = 0
+                
+                # Print planet info
+                print(f"Planet: {name}, Mass: {mass} kg, Orbit Period: {orbit_period:.2f} years")
+                
+                # Update heaviest planet
+                if mass > heaviest_planet_mass:
+                    heaviest_planet_name = name
+                    heaviest_planet_mass = mass
+        
+        # Print analysis result
+        print(f"\nThe heaviest planet in the solar system is {heaviest_planet_name} with a mass of {heaviest_planet_mass} kg.")
+    else:
+        print("Failed to fetch data from the space API.")
+
+fetch_planet_data()
